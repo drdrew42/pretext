@@ -1221,6 +1221,10 @@ along with PreTeXt.  If not, see <http://www.gnu.org/licenses/>.
     <xsl:apply-templates select="$publisher-attribute-options/webwork/pi:pub-attribute[@name='userpassword']" mode="set-pubfile-variable"/>
 </xsl:variable>
 
+<xsl:variable name="webwork-renderapi">
+    <xsl:apply-templates select="$publisher-attribute-options/webwork/pi:pub-attribute[@name='renderapi']" mode="set-pubfile-variable"/>
+</xsl:variable>
+
 <!-- WeBWorK tasks can be revealed incrementally or all at once -->
 <xsl:variable name="webwork-task-reveal">
     <xsl:apply-templates select="$publisher-attribute-options/webwork/pi:pub-attribute[@name='task-reveal']" mode="set-pubfile-variable"/>
@@ -3152,6 +3156,7 @@ along with PreTeXt.  If not, see <http://www.gnu.org/licenses/>.
         <pi:pub-attribute name="coursepassword" default="anonymous" freeform="yes"/>
         <pi:pub-attribute name="user" default="anonymous" freeform="yes"/>
         <pi:pub-attribute name="userpassword" default="anonymous" freeform="yes"/>
+		<pi:pub-attribute name="renderapi" default="https://mathdev.citytech.cuny.edu/renderer/render-api" freeform="yes"/>
         <pi:pub-attribute name="task-reveal" default="all" options="preceding-correct"/>
         <pi:pub-attribute name="static-processing" default="webwork2" options="local renderer"/>
         <pi:pub-attribute name="interactive-processing" default="webwork2" options="renderer"/>

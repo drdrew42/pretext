@@ -1,4 +1,4 @@
-# ********************************************************************
+# *******************************************************************v
 # Copyright 2010-2020 Robert A. Beezer
 #
 # This file is part of PreTeXt.
@@ -1104,6 +1104,7 @@ def webwork_to_xml(
             "courseID": ww_xml.find("server-params-pub").find("course-id").text,
             "user": ww_xml.find("server-params-pub").find("user-id").text,
             "passwd": ww_xml.find("server-params-pub").find("password").text,
+            "renderapi": ww_xml.find("server-params-pub").find("renderapi").text,
             "disableCookies": '1'
         }
         static_processing = ww_xml.find("processing").attrib["static"]
@@ -1115,6 +1116,7 @@ def webwork_to_xml(
         interactive_processing = 'webwork2'
         pg_location = '/opt/webwork/pg'
 
+    print(server_params_pub["renderapi"])
     # ideally, pub_file is in use, in which case server_params_pub is nonempty.
     # if no pub_file in use, rely on server_params.
     # if both present, use server_params_pub and give warning
@@ -1150,6 +1152,8 @@ def webwork_to_xml(
         courseID        = server_params_pub["courseID"]
         user            = server_params_pub["user"]
         passwd          = server_params_pub["passwd"]
+        # check the behavior of sanitize_url
+        renderapi       = sanitize_url(server_params_pub["renderapi"])
 
     ww_domain_ww2 = ww_domain + "/webwork2/"
     ww_domain_path = ww_domain_ww2 + "render_rpc"
@@ -1159,6 +1163,7 @@ def webwork_to_xml(
     # First try to identify the WW version according to what a response hash says it is.
     # This should work for 2.17 and beyond.
     try:
+        # TODO-AP: branch in logic necessary here ww2 vs renderer versioning
         params_for_version_determination = dict(
             problemSeed=1,
             displayMode='PTX',
@@ -1291,6 +1296,28 @@ def webwork_to_xml(
                 )
             )
         log.info(msg)
+
+        if static_processing == 'renderer' and origin[problem] != 'webwork2':
+            if origin[problem] == "external":
+                server_params_source = {"rawProblemSource":pathlib.Path(source[problem]).read_text()}
+            else:
+                server_params_source = {"rawProblemSource":pghuman[problem]}
+
+            server_params = {
+                "showSolutions": "1",
+                "showHints": "1",
+                "displayMode": "PTX",
+                "courseID": courseID,
+                "user": user,
+                "passwd": passwd,
+                "outputformat": "ptx",
+                "problemSeed": seed[problem],
+                "problemUUID": problem,
+            }
+            server_params.update(server_params_source)
+            
+            response = session.post(renderapi, data=server_params)
+            response = response.text
 
         if static_processing == 'local' and origin[problem] != 'webwork2':
             pgscript = os.path.join(get_ptx_path(), 'script', 'webwork', 'pg-ptx.pl')

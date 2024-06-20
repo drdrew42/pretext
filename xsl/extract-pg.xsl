@@ -128,6 +128,9 @@
                 <course-password>
                     <xsl:value-of select="$webwork-coursepassword"/>
                 </course-password>
+                <renderapi>
+                    <xsl:value-of select="$webwork-renderapi"/>
+                </renderapi>
             </xsl:if>
         </server-params-pub>
         <processing>
